@@ -16,10 +16,19 @@ class FinancialManager {
         const form = document.getElementById('transaction-form');
         const filterType = document.getElementById('filter-type');
         const clearAll = document.getElementById('clear-all');
+        const transactionsList = document.getElementById('transactions-list');
 
         form.addEventListener('submit', (e) => this.handleSubmit(e));
         filterType.addEventListener('change', () => this.renderTransactions());
         clearAll.addEventListener('click', () => this.clearAllTransactions());
+        
+        // Event delegation for delete buttons
+        transactionsList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('transaction-delete')) {
+                const transactionId = parseInt(e.target.getAttribute('data-transaction-id'));
+                this.deleteTransaction(transactionId);
+            }
+        });
     }
 
     setDefaultDate() {
@@ -147,7 +156,7 @@ class FinancialManager {
                 <span class="transaction-amount ${transaction.type}">
                     ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
                 </span>
-                <button class="transaction-delete" onclick="app.deleteTransaction(${transaction.id})">
+                <button class="transaction-delete" data-transaction-id="${transaction.id}">
                     Delete
                 </button>
             </div>
@@ -163,7 +172,8 @@ class FinancialManager {
     }
 
     formatDate(dateString) {
-        const date = new Date(dateString + 'T00:00:00');
+        const [year, month, day] = dateString.split('-');
+        const date = new Date(year, month - 1, day);
         return new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
             month: 'short',
@@ -249,4 +259,4 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Initialize the app
-const app = new FinancialManager();
+new FinancialManager();
