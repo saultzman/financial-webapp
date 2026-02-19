@@ -52,7 +52,7 @@ class FinancialManager {
         }
 
         const transaction = {
-            id: Date.now(),
+            id: Date.now() + Math.random(), // Prevent duplicate IDs
             description,
             amount,
             type,
@@ -136,8 +136,12 @@ class FinancialManager {
             filteredTransactions = this.transactions.filter(t => t.type === filterType);
         }
 
-        // Sort by date (newest first)
-        filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort by date (newest first) - cache date parsing for efficiency
+        filteredTransactions.sort((a, b) => {
+            const dateA = a._cachedDate || (a._cachedDate = new Date(a.date));
+            const dateB = b._cachedDate || (b._cachedDate = new Date(b.date));
+            return dateB - dateA;
+        });
 
         if (filteredTransactions.length === 0) {
             transactionsList.innerHTML = '<p class="empty-state">No transactions found</p>';
